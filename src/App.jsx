@@ -1,4 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { db, auth } from "./firebase";
+import { collection, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
 
 // CarXpress Rental Organizer — BETA (clean single-file JSX)
 // • Matches the mock: Topbar (Download leads) → Overview → Bookings → Vehicles → Customers
@@ -43,25 +46,25 @@ function useCloudStore() {
     vehicles: [],
     customers: [],
     bookings: [],
-    settings: { driverRatePerDay: 800 }, // keep a default
+    settings: { driverRatePerDay: 800 },
   });
 
-  // 1) Make sure we are signed in (anonymous)
+  // sign in anonymously once
   useEffect(() => {
     signInAnonymously(auth).catch(console.error);
   }, []);
 
-  // 2) Live-subscribe to Firestore collections
+  // live subscriptions
   useEffect(() => {
-    const unsubV = onSnapshot(collection(db, "vehicles"), snap => {
-      setState(prev => ({ ...prev, vehicles: snap.docs.map(d => d.data()) }));
-    });
-    const unsubC = onSnapshot(collection(db, "customers"), snap => {
-      setState(prev => ({ ...prev, customers: snap.docs.map(d => d.data()) }));
-    });
-    const unsubB = onSnapshot(collection(db, "bookings"), snap => {
-      setState(prev => ({ ...prev, bookings: snap.docs.map(d => d.data()) }));
-    });
+    const unsubV = onSnapshot(collection(db, "vehicles"), s =>
+      setState(p => ({ ...p, vehicles: s.docs.map(d => d.data()) }))
+    );
+    const unsubC = onSnapshot(collection(db, "customers"), s =>
+      setState(p => ({ ...p, customers: s.docs.map(d => d.data()) }))
+    );
+    const unsubB = onSnapshot(collection(db, "bookings"), s =>
+      setState(p => ({ ...p, bookings: s.docs.map(d => d.data()) }))
+    );
     return () => { unsubV(); unsubC(); unsubB(); };
   }, []);
 

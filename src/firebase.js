@@ -1,11 +1,8 @@
-// Import the functions you need from the SDKs you need
+// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDqVW0W-KVkJsGNtIC1husXHzcx2Ui3rGc",
   authDomain: "cxadmin-104cb.firebaseapp.com",
@@ -13,9 +10,13 @@ const firebaseConfig = {
   storageBucket: "cxadmin-104cb.firebasestorage.app",
   messagingSenderId: "485637889949",
   appId: "1:485637889949:web:2423dbbd84ff83a6141974",
-  measurementId: "G-N7T6KE0J5G"
+  measurementId: "G-N7T6KE0J5G" // fine to keep in config
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Export these for App.jsx
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// ⚠️ Do not call getAnalytics() on Vercel builds (can cause window errors)

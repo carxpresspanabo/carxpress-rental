@@ -3,12 +3,6 @@ import { db, auth } from "./firebase";
 import { collection, doc, onSnapshot, setDoc, updateDoc} from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 
-// CarXpress Rental Organizer — BETA (clean single-file JSX)
-// • Matches the mock: Topbar (Download leads) → Overview → Bookings → Vehicles → Customers
-// • Starts EMPTY (no demo data). Data persists to localStorage.
-// • No Settings tab, no Import/Export JSON, no Delete buttons.
-// • Driver rate is editable inside the New Booking form.
-
 // -------------------- Utils --------------------
 const STORAGE_KEY = "carxpress_rental_v3";
 const PHP = "\u20B1"; // peso symbol

@@ -30,12 +30,41 @@ function download(filename, text, type = "text/plain;charset=utf-8") {
 }
 
 // -------------------- Persistent state --------------------
-function useStore() {
-  const [state, setState] = useState(() => {
-    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
-    return { vehicles: [], customers: [], bookings: [], settings: { driverRatePerDay: 800 } };
+// imports near the top of your file:
+import { db, auth } from "./firebase";
+import {
+  collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc
+} from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
+
+// Cloud state hook that mirrors Firestore collections
+function useCloudStore() {
+  const [state, setState] = useState({
+    vehicles: [],
+    customers: [],
+    bookings: [],
+    settings: { driverRatePerDay: 800 }, // keep a default
   });
-  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }, [state]);
+
+  // 1) Make sure we are signed in (anonymous)
+  useEffect(() => {
+    signInAnonymously(auth).catch(console.error);
+  }, []);
+
+  // 2) Live-subscribe to Firestore collections
+  useEffect(() => {
+    const unsubV = onSnapshot(collection(db, "vehicles"), snap => {
+      setState(prev => ({ ...prev, vehicles: snap.docs.map(d => d.data()) }));
+    });
+    const unsubC = onSnapshot(collection(db, "customers"), snap => {
+      setState(prev => ({ ...prev, customers: snap.docs.map(d => d.data()) }));
+    });
+    const unsubB = onSnapshot(collection(db, "bookings"), snap => {
+      setState(prev => ({ ...prev, bookings: snap.docs.map(d => d.data()) }));
+    });
+    return () => { unsubV(); unsubC(); unsubB(); };
+  }, []);
+
   return [state, setState];
 }
 
@@ -77,7 +106,7 @@ const SectionHeader = ({title, subtitle}) => (
 
 // -------------------- Main App --------------------
 export default function App(){
-  const [store, setStore] = useStore();
+  const [store] = useCloudStore();
   const { vehicles, customers, bookings } = store;
 
   const totalFleet = vehicles.length;
@@ -85,13 +114,31 @@ export default function App(){
   const availableUnits = Math.max(0, totalFleet - outUnits);
 
   // CRUD helpers
-  const save = (fn) => setStore(prev => ({ ...prev, ...fn(prev) }));
-  const addVehicle = (v) => save(p => ({ vehicles: [...p.vehicles, v] }));
-  const updateVehicle = (id, patch) => save(p => ({ vehicles: p.vehicles.map(x => x.id === id ? { ...x, ...patch } : x) }));
-  const addCustomer = (c) => save(p => ({ customers: [...p.customers, c] }));
-  const updateCustomer = (id, patch) => save(p => ({ customers: p.customers.map(x => x.id === id ? { ...x, ...patch } : x) }));
-  const addBooking = (b) => save(p => ({ bookings: [b, ...p.bookings] }));
-  const updateBooking = (id, patch) => save(p => ({ bookings: p.bookings.map(x => x.id === id ? { ...x, ...patch } : x) }));
+  // Vehicles
+const addVehicle = async (v) => {
+  await setDoc(doc(db, "vehicles", v.id), v);
+};
+const updateVehicle = async (id, patch) => {
+  await updateDoc(doc(db, "vehicles", id), patch);
+};
+// (You removed deletes from UI, but here’s one if you ever need it)
+// const deleteVehicle = async (id) => await deleteDoc(doc(db, "vehicles", id));
+
+// Customers
+const addCustomer = async (c) => {
+  await setDoc(doc(db, "customers", c.id), c);
+};
+const updateCustomer = async (id, patch) => {
+  await updateDoc(doc(db, "customers", id), patch);
+};
+
+// Bookings
+const addBooking = async (b) => {
+  await setDoc(doc(db, "bookings", b.id), b);
+};
+const updateBooking = async (id, patch) => {
+  await updateDoc(doc(db, "bookings", id), patch);
+};
 
   // Leads export (names + phones from customers + bookings)
   function downloadLeads(){

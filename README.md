@@ -6,6 +6,7 @@ A Vite + React + Tailwind app for managing CarXpress bookings, vehicles, custome
 ```bash
 npm install
 npm run dev
+npm i firebase
 ```
 Open the local URL (e.g., http://localhost:5173).
 

@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { db, auth } from "./firebase";
-import {
-  collection, doc, onSnapshot, setDoc, updateDoc
-} from "firebase/firestore";
+import { collection, doc, onSnapshot, setDoc, updateDoc} from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 
 // CarXpress Rental Organizer — BETA (clean single-file JSX)

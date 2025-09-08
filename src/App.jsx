@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { db, auth } from "./firebase";
-import { collection, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import {
+  collection, doc, onSnapshot, setDoc, updateDoc
+} from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
 
 // CarXpress Rental Organizer — BETA (clean single-file JSX)
 // • Matches the mock: Topbar (Download leads) → Overview → Bookings → Vehicles → Customers
@@ -32,13 +35,6 @@ function download(filename, text, type = "text/plain;charset=utf-8") {
 }
 
 // -------------------- Persistent state --------------------
-// imports near the top of your file:
-import { db, auth } from "./firebase";
-import {
-  collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc
-} from "firebase/firestore";
-import { signInAnonymously } from "firebase/auth";
-
 // Cloud state hook that mirrors Firestore collections
 function useCloudStore() {
   const [state, setState] = useState({

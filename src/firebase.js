@@ -1,8 +1,9 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
+// 👇 your own config (keep it as you pasted earlier)
 const firebaseConfig = {
   apiKey: "AIzaSyDqVW0W-KVkJsGNtIC1husXHzcx2Ui3rGc",
   authDomain: "cxadmin-104cb.firebaseapp.com",
@@ -10,13 +11,11 @@ const firebaseConfig = {
   storageBucket: "cxadmin-104cb.firebasestorage.app",
   messagingSenderId: "485637889949",
   appId: "1:485637889949:web:2423dbbd84ff83a6141974",
-  measurementId: "G-N7T6KE0J5G" // fine to keep in config
+  measurementId: "G-N7T6KE0J5G"
 };
 
 const app = initializeApp(firebaseConfig);
 
-// Export these for App.jsx
-export const auth = getAuth(app);
+// Export only these 2 – Analytics is removed to avoid SSR build errors.
 export const db = getFirestore(app);
-
-// ⚠️ Do not call getAnalytics() on Vercel builds (can cause window errors)
+export const auth = getAuth(app);
